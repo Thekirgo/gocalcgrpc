@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .login-container, .calculator-container, .history-container {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .hidden {
+            display: none;
+        }
+        input, button {
+            padding: 8px;
+            margin: 5px 0;
+        }
+        button {
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        /* Увеличиваем ширину поля ввода */
+        #expression {
+            width: 100%;
+            min-width: 400px;
+            box-sizing: border-box;
+            padding: 10px;
+            font-size: 16px;
+        }
+        /* Добавляем стили для области ввода */
+        .input-area {
+            width: 100%;
+            margin-bottom: 15px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+            cursor: pointer;
+        }
+        tr.completed td {
+            color: #4CAF50;
+        }
+        tr.error td {
+            color: #f44336;
+        }
+        #history-body tr td:last-child {
+            color: #666;
+            font-size: 0.9em;
+            white-space: nowrap;
+        }
+        .notification {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .token-info {
+            font-size: 0.8em;
+            color: #666;
+            margin-top: 10px;
+        }
+        .warning {
+            color: #f44336;
+        }
+        .user-info {
+            margin-bottom: 15px;
+            font-size: 16px;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        .date {
+            color: #666;
+            font-size: 0.9em;
+            white-space: nowrap;
+        }
+        .history-item {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 10px;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            align-items: center;
+        }
+        
+        .history-item .expression {
+            font-weight: bold;
+        }
+        
+        .history-item .result {
+            color: #4CAF50;
+        }
+        
+        .history-item .status {
+            text-transform: capitalize;
+        }
+        
+        .history-item .date {
+            color: #666;
+            font-size: 0.9em;
+            white-space: nowrap;
+        }
+        
+        .history-item.error .result {
+            color: #f44336;
+        }
+        
+        .history-item.empty {
+            text-align: center;
+            color: #666;
+            grid-column: 1 / -1;
+        }
+    </style>
+</head>
+<body>
+    <h1>Онлайн калькулятор</h1>
+    
+    <div id="notification" class="notification hidden"></div>
+    
+    <!-- Раздел для входа/регистрации -->
+    <div id="auth-container" class="login-container">
+        <h2>Вход / Регистрация</h2>
+        <div>
+            <input type="text" id="login" placeholder="Логин">
+            <input type="password" id="password" placeholder="Пароль">
+            <button id="login-btn">Войти</button>
+            <button id="register-btn">Зарегистрироваться</button>
+        </div>
+        <div id="notification" class="notification hidden"></div>
+        <div id="login-token-info" class="token-info warning">Внимание! Сессия активна 1 час. По истечении времени потребуется повторная авторизация.</div>
+    </div>
+    
+    <!-- Раздел для калькулятора (скрыт до входа) -->
+    <div id="calculator-container" class="calculator-container hidden">
+        <div class="user-info">Пользователь: <span id="username">Гость</span></div>
+        <div class="input-area">
+            <input type="text" id="expression" placeholder="Введите выражение (например, 2+2*4/2)" onkeypress="if(event.key === 'Enter') { alert('Enter нажат'); calculate(); return false; }">
+            <button id="calculate-btn">Вычислить</button>
+            <div id="result"></div>
+            <div id="token-expiry" class="token-info"></div>
+            <button id="logout-btn" style="background-color: #f44336; margin-top: 20px;">Выйти</button>
+        </div>
+    </div>
+    
+    <!-- Раздел для истории вычислений (скрыт до входа) -->
+    <div id="history-container" class="history-container hidden">
+        <h2>История вычислений</h2>
+        <button id="refresh-history-btn">Обновить историю</button>
+        <table id="history-table">
+            <thead>
+                <tr>
+                    <th>Выражение</th>
+                    <th>Результат</th>
+                    <th>Статус</th>
+                    <th>Дата вычисления</th>
+                </tr>
+            </thead>
+            <tbody id="history-body">
+                <!-- Здесь будет динамически заполненная история -->
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Раздел для текущих вычислений (PROCESSING) -->
+    <div id="processing-container" class="history-container hidden">
+        <h2>Текущие вычисления</h2>
+        <table id="processing-table">
+            <thead>
+                <tr>
+                    <th>Выражение</th>
+                    <th>Результат</th>
+                    <th>Статус</th>
+                    <th>Дата вычисления</th>
+                </tr>
+            </thead>
+            <tbody id="processing-body">
+                <!-- Здесь будет динамически заполнено PROCESSING -->
+            </tbody>
+        </table>
+    </div>
+    
+    <script src="/static/js/main.js"></script>
+</body>
+</html> 

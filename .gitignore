@@ -1,0 +1,13 @@
+# IDE specific files
+.idea/
+*.iml
+*.iws
+.vscode/
+*.swp
+*.swo
+# Исполняемые файлы
+/main
+*.exe
+# Логи и временные файлы
+*.log
+tmp/

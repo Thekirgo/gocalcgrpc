@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package calculator;
+
+option go_package = "gocalc/proto";
+
+// Сервис вычислителя
+service Calculator {
+  rpc GetTask(TaskRequest) returns (Task); // Агент берет задачу у оркестратора
+  rpc SubmitTaskResult(TaskResult) returns (TaskResultResponse); // Агент отправляет ответ назад в оркестратор
+}
+
+message TaskRequest {
+  string agent_id = 1; // Id агента
+}
+
+// Задача для решения
+message Task {
+  string id = 1; // Id задачи
+  double arg1 = 2; // Первое число
+  double arg2 = 3; // Второе число
+  string operation = 4; // Операция "+", "-", "*", "/"
+  int32 operation_time = 5; //мс
+  int32 priority = 6; // Приоритет операций "*", "/", "+", "-" 
+}
+
+message TaskResult {
+  string id = 1; // Id задачи
+  double result = 2; // Результат вычисления
+}
+
+// Ответ от оркестратора
+message TaskResultResponse {
+  bool success = 1;
+  string error_message = 2;
+} 

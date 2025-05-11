@@ -61,7 +61,7 @@ func (h *CalculatorHandler) Calculate(w http.ResponseWriter, r *http.Request) {
 
 	result, err := calculator.Calc(req.Expression)
 	if err != nil {
-		// Любая ошибка при вычислении выражения должна возвращать 422
+		// ошибка при вычислении выражения должна возвращать 422
 		if strings.Contains(err.Error(), "invalid") ||
 			strings.Contains(err.Error(), "division by zero") ||
 			strings.Contains(err.Error(), "mismatched parentheses") ||
@@ -70,7 +70,6 @@ func (h *CalculatorHandler) Calculate(w http.ResponseWriter, r *http.Request) {
 			errorMsg := err.Error()
 			errorMsg = strings.Replace(errorMsg, "tokenization error: ", "", 1)
 
-			// Обновляем статус выражения
 			expression.Status = "error"
 
 			// Сохраняем выражение с ошибкой

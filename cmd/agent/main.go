@@ -152,9 +152,6 @@ func processTaskGRPC(client *grpc.CalculatorClient, workerID int, agentID string
 		workerID, agentID, task.Id, result)
 
 	for retry := 0; retry < maxRetries; retry++ {
-		log.Printf("Worker %d (агент %s): Отправка результата для задачи %s, попытка %d/%d",
-			workerID, agentID, task.Id, retry+1, maxRetries)
-
 		err = client.SubmitTaskResult(task.Id, result)
 
 		if err == nil {

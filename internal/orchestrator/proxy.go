@@ -126,8 +126,7 @@ func HandleProtectedCalculate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Printf("Вызываем локальную обработку выражения: %s", calcReq.Expression)
-	log.Printf("RAW expression bytes: %v", []byte(calcReq.Expression))
-	log.Printf("RAW expression string: %q", calcReq.Expression)
+	log.Printf("Expression string: %q", calcReq.Expression)
 
 	var invalidExprError error
 	if calcReq.Expression == "" {
@@ -201,7 +200,7 @@ func HandleProtectedCalculate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Printf("Выражение создано: ID=%s, начинается вычисление с использованием агентов", exprID)
+	log.Printf("Выражение создано: ID=%s, начинается вычисление", exprID)
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]string{"id": exprID})

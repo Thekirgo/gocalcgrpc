@@ -91,6 +91,5 @@ func (c *CalculatorClient) SubmitTaskResult(taskID string, result float64) error
 		return status.Error(codes.Internal, res.ErrorMessage)
 	}
 
-	log.Printf("Результат задачи %s успешно обработан", taskID)
 	return nil
 }

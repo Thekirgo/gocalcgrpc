@@ -53,12 +53,9 @@ func (s *CalculatorServer) GetTask(ctx context.Context, req *pb.TaskRequest) (*p
 	}, nil
 }
 
-// SubmitTaskResult принимает результат вычисления от агента
 func (s *CalculatorServer) SubmitTaskResult(ctx context.Context, result *pb.TaskResult) (*pb.TaskResultResponse, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-
-	log.Printf("Получен результат задачи %s от агента: %f", result.Id, result.Result)
 
 	err := s.taskManager.SubmitTaskResult(orchestrator.TaskResult{
 		ID:     result.Id,
@@ -79,14 +76,13 @@ func (s *CalculatorServer) SubmitTaskResult(ctx context.Context, result *pb.Task
 	}, nil
 }
 
-// StartServer запускает gRPC сервер
+// запускает gRPC сервер
 func StartServer(address string, taskManager *orchestrator.TaskManager) error {
 	lis, err := net.Listen("tcp", address)
 	if err != nil {
 		return err
 	}
 
-	// Настройки для keepalive и размеров сообщений
 	opts := []grpc.ServerOption{
 		grpc.MaxRecvMsgSize(16 * 1024 * 1024), // 16MB
 		grpc.MaxSendMsgSize(16 * 1024 * 1024), // 16MB

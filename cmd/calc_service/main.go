@@ -92,7 +92,6 @@ func main() {
 			return
 		}
 
-		// Проверяем, что выражение не пустое
 		if req.Expression == "" {
 			sendJSONError(w, http.StatusBadRequest, "Выражение не может быть пустым")
 			return

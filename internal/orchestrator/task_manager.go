@@ -244,13 +244,12 @@ func (tm *TaskManager) CreateExpression(expressionText string, userID int) (stri
 		}
 	}
 
-	// Проверяем, что задачи были созданы и сохранены в карте задач
 	log.Printf("После создания выражения %s количество задач в taskManager: %d", exprID, len(tm.tasks))
 	for _, taskID := range taskIDs {
 		if _, exists := tm.tasks[taskID]; !exists {
 			log.Printf("ОШИБКА: Задача %s не найдена в tm.tasks после создания", taskID)
 		} else {
-			log.Printf("Задача %s успешно сохранена в tm.tasks", taskID)
+			log.Printf("Задача %s успешно сохранена в таскменеджере", taskID)
 		}
 	}
 
@@ -258,18 +257,13 @@ func (tm *TaskManager) CreateExpression(expressionText string, userID int) (stri
 	return exprID, nil
 }
 
-// GetNextTask возвращает следующую задачу для вычисления
 func (tm *TaskManager) GetNextTask() (Task, bool) {
 	tm.mu.Lock()
 	defer tm.mu.Unlock()
 
-	//log.Printf("GetNextTask: запрошена задача для выполнения. Количество задач: %d", len(tm.tasks))
-
-	// Сначала выбираем задачи с высоким приоритетом
 	for id, task := range tm.tasks {
 		dependTaskIDs, hasDependency := tm.dependsOnTask[id]
 
-		// Если нет зависимостей - возвращаем задачу
 		if !hasDependency || len(dependTaskIDs) == 0 {
 			log.Printf("Подготовка задачи %s для распределения. Нет зависимостей.", id)
 			delete(tm.tasks, id)
@@ -326,22 +320,18 @@ func (tm *TaskManager) SubmitTaskResult(result TaskResult) error {
 		return errors.New("задачи выражения не найдены")
 	}
 
-	// Проверяем, все ли задачи выполнены
 	allTasksCompleted := true
 	completedTasks := 0
 	for _, taskID := range taskIDs {
 		if _, ok := tm.taskResults[taskID]; ok {
 			completedTasks++
-			log.Printf("Задача %s для выражения %s выполнена", taskID, exprID)
 		} else {
 			allTasksCompleted = false
-			log.Printf("Задача %s для выражения %s еще не выполнена", taskID, exprID)
 		}
 	}
 
 	log.Printf("Для выражения %s выполнено %d/%d задач", exprID, completedTasks, len(taskIDs))
 
-	log.Printf("Зависимости задач для выражения %s:", exprID)
 	if allTasksCompleted {
 		log.Printf("Все задачи для выражения %s выполнены, обновляем статус", exprID)
 
@@ -351,7 +341,7 @@ func (tm *TaskManager) SubmitTaskResult(result TaskResult) error {
 			return errors.New("выражение не найдено")
 		}
 
-		log.Printf("Текущее состояние выражения %s: статус=%s, результат=%f", exprID, expr.Status, expr.Result)
+		log.Printf("Текущее состояние выражения %s: статус=%s", exprID, expr.Status)
 
 		var rootTaskID string
 		isRoot := make(map[string]bool)
@@ -365,12 +355,9 @@ func (tm *TaskManager) SubmitTaskResult(result TaskResult) error {
 			}
 		}
 
-		log.Printf("isRoot карта для выражения %s: %v", exprID, isRoot)
-
 		for _, taskID := range taskIDs {
 			if isRoot[taskID] {
 				rootTaskID = taskID
-				log.Printf("Задача %s определена как корневая для выражения %s", taskID, exprID)
 			}
 		}
 
@@ -427,7 +414,6 @@ func (tm *TaskManager) SubmitTaskResult(result TaskResult) error {
 			delete(tm.tasks, taskID)
 		}
 		delete(tm.expressionTasks, exprID)
-		log.Printf("Очищены данные о задачах для выражения %s", exprID)
 	}
 
 	return nil
@@ -469,7 +455,6 @@ func (tm *TaskManager) GetAllTasks() []Task {
 	return result
 }
 
-// ResetState сбрасывает состояние менеджера
 func (tm *TaskManager) ResetState() {
 	tm.mu.Lock()
 	defer tm.mu.Unlock()

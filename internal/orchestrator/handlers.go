@@ -88,7 +88,6 @@ func HandleCalculate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Очищаем выражение от лишних пробелов
 	calcReq.Expression = strings.TrimSpace(calcReq.Expression)
 
 	log.Printf("Токен действителен, начинаем вычисление выражения через оркестратор-агент")
@@ -115,7 +114,7 @@ func HandleCalculate(w http.ResponseWriter, r *http.Request) {
 	expressions[exprID] = expr
 	mu.Unlock()
 
-	log.Printf("Выражение создано: ID=%s, начинается вычисление с использованием агентов", exprID)
+	log.Printf("Выражение создано: ID=%s, начинается вычисление", exprID)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusAccepted)
@@ -201,9 +200,7 @@ func HandleGetExpressions(w http.ResponseWriter, r *http.Request) {
 func HandleGetExpression(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
-	log.Printf("Запрос выражения по ID: %s", id)
 
-	// Получаем userID из контекста
 	userID, ok := getUserIDFromContext(r.Context())
 	if !ok {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
